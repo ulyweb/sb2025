@@ -3,120 +3,164 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Superbowl Squares</title>
+    <title>Super Bowl Squares</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f9;
+            text-align: center;
+            background-color: #f4f4f4;
         }
         h1 {
-            margin-top: 20px;
+            margin: 20px;
+            color: #333;
         }
         .grid-container {
-            display: grid;
-            grid-template-columns: 1fr 10fr;
-            margin: 20px auto;
-            width: 90%;
-        }
-        .row-labels, .grid {
-            display: grid;
-        }
-        .row-labels {
-            grid-template-rows: repeat(11, 1fr);
-        }
-        .row-labels div {
             display: flex;
-            align-items: center;
             justify-content: center;
-            height: 40px;
-            background-color: #ddd;
+            align-items: flex-start;
+            margin: 20px auto;
+        }
+        .team-label {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            padding: 10px;
             font-weight: bold;
+            font-size: 18px;
         }
         .grid {
-            grid-template-columns: repeat(11, 1fr);
-            grid-auto-rows: 40px;
-            border: 1px solid #ccc;
+            display: grid;
+            grid-template-columns: repeat(11, 50px);
+            grid-template-rows: repeat(11, 50px);
+            gap: 2px;
         }
         .grid div {
             display: flex;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             border: 1px solid #ccc;
+            font-size: 14px;
+            font-weight: bold;
             background-color: white;
             cursor: pointer;
-            transition: background-color 0.3s;
         }
         .grid div.taken {
-            background-color: #f6cbd1;
-            color: black;
+            background-color: lightgray;
             cursor: not-allowed;
         }
-        .grid div:hover:not(.taken) {
-            background-color: #b3d9ff;
+        .grid div:hover:not(.taken):not(.header) {
+            background-color: lightblue;
         }
-        .team-row-header, .team-col-header {
-            font-size: 20px;
+        .grid div.header {
+            background-color: #333;
+            color: white;
+            cursor: default;
+        }
+        .info {
+            margin: 20px auto;
+            max-width: 600px;
+        }
+        .info div {
+            font-size: 18px;
+            margin: 10px 0;
+        }
+        .teams {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px;
+            font-size: 18px;
             font-weight: bold;
-            padding: 10px 0;
-            text-align: center;
+        }
+        .team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 20px;
+        }
+        .teams img {
+            max-height: 50px;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
-    <h1>Superbowl Squares</h1>
-    <p>Pick your square by clicking on an available box!</p>
-    <div>
-        <div class="team-col-header">Chiefs</div>
+    <h1>Super Bowl Squares</h1>
+    <div class="info">
+        <div>Price Per Square: $10</div>
+        <div>Payouts:</div>
+        <ul style="list-style-type: none; padding: 0;">
+            <li>1st Quarter: $250</li>
+            <li>2nd Quarter: $250</li>
+            <li>3rd Quarter: $250</li>
+            <li>Final: $250</li>
+        </ul>
+    </div>
+    <div class="teams">
+        <div class="team">
+            <img src="https://upload.wikimedia.org/wikipedia/en/e/e1/Kansas_City_Chiefs_logo.svg" alt="Kansas City Chiefs">
+            <div>Kansas City Chiefs</div>
+        </div>
+        <div>vs</div>
+        <div class="team">
+            <img src="https://upload.wikimedia.org/wikipedia/en/a/a6/Philadelphia_Eagles_logo.svg" alt="Philadelphia Eagles">
+            <div>Philadelphia Eagles</div>
+        </div>
     </div>
     <div class="grid-container">
-        <!-- Row Labels -->
-        <div class="row-labels">
-            <div></div> <!-- Empty corner -->
-            <div>0</div>
-            <div>1</div>
-            <div>2</div>
-            <div>3</div>
-            <div>4</div>
-            <div>5</div>
-            <div>6</div>
-            <div>7</div>
-            <div>8</div>
-            <div>9</div>
-        </div>
-        <!-- Grid -->
-        <div class="grid">
-            <div class="team-row-header">Eagles</div>
-            <!-- Dynamically generate rows and columns in the grid -->
-            {% for i in range(10) %}
-                {% for j in range(10) %}
-                    <div id="{{ i }},{{ j }}" class="{{ 'taken' if squares[i][j] != '' else '' }}" 
-                         onclick="selectSquare({{ i }}, {{ j }})">
-                        {% if squares[i][j] != '' %}
-                            {{ squares[i][j] }}
-                        {% endif %}
-                    </div>
-                {% endfor %}
-            {% endfor %}
+        <div class="team-label">Eagles</div>
+        <div>
+            <div class="team-label" style="writing-mode: horizontal-tb; transform: none; height: 50px;">Chiefs</div>
+            <div id="grid" class="grid"></div>
         </div>
     </div>
+
     <script>
+        const grid = document.getElementById('grid');
+        const squares = Array(10).fill().map(() => Array(10).fill(''));
+
+        function createGrid() {
+            // Create header row
+            grid.appendChild(createHeaderCell(''));
+            for (let i = 0; i < 10; i++) {
+                grid.appendChild(createHeaderCell(i));
+            }
+
+            // Create main grid with row headers
+            for (let i = 0; i < 10; i++) {
+                grid.appendChild(createHeaderCell(i));
+                for (let j = 0; j < 10; j++) {
+                    const cell = document.createElement('div');
+                    cell.id = `${i},${j}`;
+                    cell.onclick = () => selectSquare(i, j);
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function createHeaderCell(text) {
+            const cell = document.createElement('div');
+            cell.textContent = text;
+            cell.className = 'header';
+            return cell;
+        }
+
         function selectSquare(row, col) {
             const square = document.getElementById(`${row},${col}`);
             if (square.classList.contains('taken')) {
                 alert('This square is already taken!');
                 return;
             }
-            const userName = prompt(`Enter your name for square ${row},${col}:`);
-            if (userName) {
-                // Simulate saving the data
-                square.textContent = userName;
+            if (confirm(`Do you want to pick square (${row}, ${col})?`)) {
                 square.classList.add('taken');
-                alert('Square selected successfully!');
+                square.textContent = prompt("Enter your name:") || "Anonymous";
+                squares[row][col] = square.textContent;
             }
         }
+
+        createGrid();
     </script>
 </body>
 </html>
