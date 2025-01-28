@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Bowl Squares</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        h1 {
+            color: #007bff;
+        }
+        .team-logos {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+        }
+        .team {
+            margin: 0 20px;
+            text-align: center;
+        }
+        .team img {
+            width: 100px;
+            height: auto;
+        }
+        .team-name {
+            font-size: 1.2em;
+            margin-top: 10px;
+        }
+        .info {
+            margin: 20px 0;
+            font-size: 1.1em;
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        td, th {
+            border: 1px solid #ddd;
+            width: 60px;
+            height: 60px;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        td.default {
+            background-color: #ffffff;
+            color: #aaa;
+        }
+        td.taken {
+            background-color: #f44336;
+            color: white;
+            cursor: not-allowed;
+        }
+        td.selected {
+            background-color: #4caf50;
+            color: white;
+        }
+        td:hover:not(.taken):not(.selected) {
+            background-color: #d4edda;
+        }
+        .payment-info {
+            margin-top: 20px;
+            font-size: 1em;
+            color: #555;
+        }
+    </style>
+    <script>
+        const grid = {{ grid|tojson }};  // Load grid from the server
+
+        window.onload = function() {
+            const table = document.getElementById('grid-table');
+            for (let row = 0; row < grid.length; row++) {
+                const tr = document.createElement('tr');
+                for (let col = 0; col < grid[row].length; col++) {
+                    const td = document.createElement('td');
+                    td.innerText = grid[row][col] ? "Taken" : `${row},${col}`;
+                    td.className = grid[row][col] ? 'taken' : 'default';
+                    if (!grid[row][col]) {
+                        td.onclick = () => claimSquare(row, col, td);
+                    }
+                    tr.appendChild(td);
+                }
+                table.appendChild(tr);
+            }
+        };
+
+        function claimSquare(row, col, cell) {
+            const name = prompt("Enter your name to claim this square:");
+            if (name) {
+                fetch('/save-grid', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ row, col, name })
+                }).then(response => {
+                    if (response.ok) {
+                        cell.innerText = "Selected";
+                        cell.classList.remove('default');
+                        cell.classList.add('selected');
+                        cell.onclick = null;
+                        alert("Square claimed successfully! Please send payment to PayPal: your-email@example.com or Venmo: @your-venmo-username.");
+                    } else {
+                        response.json().then(data => alert(data.message));
+                    }
+                }).catch(error => console.error('Error:', error));
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Super Bowl Squares Game</h1>
+    <div class="team-logos">
+        <div class="team">
+            <img src="https://upload.wikimedia.org/wikipedia/en/e/e1/Kansas_City_Chiefs_logo.svg" alt="Kansas City Chiefs Logo">
+            <div class="team-name">Kansas City Chiefs</div>
+        </div>
+        <div class="team">
+            <img src="https://upload.wikimedia.org/wikipedia/en/8/8e/Philadelphia_Eagles_logo.svg" alt="Philadelphia Eagles Logo">
+            <div class="team-name">Philadelphia Eagles</div>
+        </div>
+    </div>
+    <div class="info">
+        <p><strong>Per Square Price:</strong> $10</p>
+        <p><strong>Payouts:</strong></p>
+        <ul style="list-style-type: none; padding: 0;">
+            <li>1st Quarter: $100</li>
+            <li>2nd Quarter: $175</li>
+            <li>3rd Quarter: $275</li>
+            <li>Final Score: $450</li>
+        </ul>
+    </div>
+    <p>Click a square to claim it. Enter your name to reserve it.</p>
+    <table id="grid-table"></table>
+    <div class="payment-info">
+        <p>After claiming a square, please send payment to:</p>
+        <p>PayPal: your-email@example.com</p>
+        <p>Venmo: @your-venmo-username</p>
+    </div>
+</body>
+</html>
