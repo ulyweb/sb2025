@@ -29,8 +29,8 @@
         }
         .grid {
             display: grid;
-            grid-template-columns: repeat(11, 50px);
-            grid-template-rows: repeat(11, 50px);
+            grid-template-columns: repeat(11, 60px);
+            grid-template-rows: repeat(11, 60px);
             gap: 2px;
         }
         .grid div {
@@ -42,6 +42,9 @@
             font-weight: bold;
             background-color: white;
             cursor: pointer;
+            text-align: center;
+            word-wrap: break-word;
+            padding: 5px;
         }
         .grid div.taken {
             background-color: lightgray;
@@ -139,7 +142,7 @@
 
         function selectSquare(row, col) {
             if (squares[`${row},${col}`]) {
-                alert("This square is already taken!");
+                alert(`This square is already taken by ${squares[`${row},${col}`]}!`);
                 return;
             }
 
