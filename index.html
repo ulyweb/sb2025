@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Bowl Squares</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f4; }
+        .grid-container { display: flex; justify-content: center; align-items: flex-start; margin: 20px auto; }
+        .grid { display: grid; grid-template-columns: repeat(11, 50px); grid-template-rows: repeat(11, 50px); gap: 2px; }
+        .grid div { display: flex; justify-content: center; align-items: center; border: 1px solid #ccc; font-size: 14px; font-weight: bold; background-color: white; cursor: pointer; }
+        .grid div.taken { background-color: lightgray; cursor: not-allowed; }
+        .grid div.header { background-color: #333; color: white; cursor: default; }
+    </style>
+</head>
+<body>
+    <h1>Super Bowl Squares</h1>
+    <div class="grid-container">
+        <div class="team-label">Eagles</div>
+        <div>
+            <div class="team-label" style="writing-mode: horizontal-tb;">Chiefs</div>
+            <div id="grid" class="grid"></div>
+        </div>
+    </div>
+
+    <script>
+        const grid = document.getElementById('grid');
+        let squares = {};
+
+        function fetchSquares() {
+            fetch('/')
+                .then(response => response.text())
+                .then(data => {
+                    squares = JSON.parse(data.match(/{.*}/)[0]);
+                    createGrid();
+                });
+        }
+
+        function createGrid() {
+            grid.innerHTML = "";
+            grid.appendChild(createHeaderCell(''));
+            for (let i = 0; i < 10; i++) grid.appendChild(createHeaderCell(i));
+
+            for (let i = 0; i < 10; i++) {
+                grid.appendChild(createHeaderCell(i));
+                for (let j = 0; j < 10; j++) {
+                    const cell = document.createElement('div');
+                    cell.id = `${i},${j}`;
+                    if (squares[`${i},${j}`]) {
+                        cell.textContent = squares[`${i},${j}`];
+                        cell.classList.add('taken');
+                    } else {
+                        cell.onclick = () => selectSquare(i, j);
+                    }
+                    grid.appendChild(cell);
+                }
+            }
+        }
+
+        function createHeaderCell(text) {
+            const cell = document.createElement('div');
+            cell.textContent = text;
+            cell.className = 'header';
+            return cell;
+        }
+
+        function selectSquare(row, col) {
+            if (squares[`${row},${col}`]) {
+                alert("This square is already taken!");
+                return;
+            }
+
+            const name = prompt("Enter your name:");
+            if (!name) return;
+
+            fetch('/select', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ row, col, name })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    squares[`${row},${col}`] = name;
+                    createGrid();
+                }
+            });
+        }
+
+        fetchSquares();
+    </script>
+</body>
+</html>
