@@ -73,10 +73,36 @@
             max-height: 50px;
             margin-bottom: 10px;
         }
+        .info, .payment-info {
+            background-color: white;
+            padding: 15px;
+            margin: 20px auto;
+            max-width: 400px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
     </style>
 </head>
 <body>
     <h1>Super Bowl Squares</h1>
+    
+    <div class="info">
+        <p><strong>Per Square Price:</strong> $10</p>
+        <p><strong>Payouts:</strong></p>
+        <ul>
+            <li>1st Quarter: $100</li>
+            <li>2nd Quarter: $175</li>
+            <li>3rd Quarter: $275</li>
+            <li>Final Score: $450</li>
+        </ul>
+    </div>
+
+    <p>Click a square to claim it. Enter your name to reserve it.</p>
+
     <div class="teams">
         <div class="team">
             <img src="https://upload.wikimedia.org/wikipedia/en/e/e1/Kansas_City_Chiefs_logo.svg" alt="Kansas City Chiefs">
@@ -84,16 +110,23 @@
         </div>
         <div>vs</div>
         <div class="team">
-            <img src="https://upload.wikimedia.org/wikipedia/en/8/8e/Philadelphia_Eagles_logo.svg" alt="Philadelphia Eagles Logo">
+            <img src="https://upload.wikimedia.org/wikipedia/en/8/8e/Philadelphia_Eagles_logo.svg" alt="Philadelphia Eagles">
             <div>Philadelphia Eagles</div>
         </div>
     </div>
+
     <div class="grid-container">
         <div class="team-label">Eagles</div>
         <div>
             <div class="team-label" style="text-align: center;">Chiefs</div>
             <div id="grid" class="grid"></div>
         </div>
+    </div>
+
+    <div class="payment-info">
+        <p>After claiming a square, please send payment to:</p>
+        <p>PayPal: your-email@example.com</p>
+        <p>Venmo: @your-venmo-username</p>
     </div>
 
     <script>
