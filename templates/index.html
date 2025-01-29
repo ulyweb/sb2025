@@ -128,77 +128,77 @@
         <p>PayPal: your-email@example.com</p>
         <p>Venmo: @your-venmo-username</p>
     </div>
+<script>
+    const grid = document.getElementById('grid');
+    let squares = {};
 
-    <script>
-        const grid = document.getElementById('grid');
-        let squares = {};
-
-        function fetchSquares() {
-            fetch('/')
-                .then(response => response.text())
-                .then(data => {
-                    squares = JSON.parse(data.match(/{.*}/)[0]); 
-                    createGrid();
-                });
-        }
-
-        function createGrid() {
-            grid.innerHTML = "";
-            
-            // Create column headers
-            grid.appendChild(createHeaderCell(''));
-            for (let i = 0; i < 10; i++) grid.appendChild(createHeaderCell(i));
-
-            // Create main grid
-            for (let i = 0; i < 10; i++) {
-                grid.appendChild(createHeaderCell(i));
-                for (let j = 0; j < 10; j++) {
-                    const cell = document.createElement('div');
-                    cell.id = `${i},${j}`;
-                    if (squares[`${i},${j}`]) {
-                        cell.textContent = squares[`${i},${j}`];
-                        cell.classList.add('taken');
-                    } else {
-                        cell.onclick = () => selectSquare(i, j);
-                    }
-                    grid.appendChild(cell);
-                }
-            }
-        }
-
-        function createHeaderCell(text) {
-            const cell = document.createElement('div');
-            cell.textContent = text;
-            cell.className = 'header';
-            return cell;
-        }
-
-        function selectSquare(row, col) {
-            if (squares[`${row},${col}`]) {
-                alert(`This square is already taken by ${squares[`${row},${col}`]}!`);
-                return;
-            }
-
-            const name = prompt("Enter your name:");
-            if (!name) return;
-
-            fetch('/select', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ row, col, name })
-            })
-            .then(response => response.json())
+    function fetchSquares() {
+        fetch('/')
+            .then(response => response.text())
             .then(data => {
-                if (data.error) {
-                    alert(data.error);
-                } else {
-                    squares[`${row},${col}`] = name;
-                    createGrid();
-                }
+                squares = JSON.parse(data.match(/{.*}/)[0]); 
+                createGrid();
             });
+    }
+
+    function createGrid() {
+        grid.innerHTML = "";
+        
+        // Create column headers
+        grid.appendChild(createHeaderCell(''));
+        for (let i = 0; i < 10; i++) grid.appendChild(createHeaderCell(i));
+
+        // Create main grid
+        for (let i = 0; i < 10; i++) {
+            grid.appendChild(createHeaderCell(i));
+            for (let j = 0; j < 10; j++) {
+                const cell = document.createElement('div');
+                cell.id = `${i},${j}`;
+                if (squares[`${i},${j}`]) {
+                    cell.textContent = "Taken";
+                    cell.classList.add('taken');
+                } else {
+                    cell.onclick = () => selectSquare(i, j);
+                }
+                grid.appendChild(cell);
+            }
+        }
+    }
+
+    function createHeaderCell(text) {
+        const cell = document.createElement('div');
+        cell.textContent = text;
+        cell.className = 'header';
+        return cell;
+    }
+
+    function selectSquare(row, col) {
+        if (squares[`${row},${col}`]) {
+            alert(`This square is already taken!`);
+            return;
         }
 
-        fetchSquares();
-    </script>
+        const name = prompt("Enter your name:");
+        if (!name) return;
+
+        fetch('/select', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ row, col, name })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(data.error);
+            } else {
+                squares[`${row},${col}`] = name;
+                createGrid();
+            }
+        });
+    }
+
+    fetchSquares();
+</script>
+
 </body>
 </html>
