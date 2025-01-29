@@ -5,20 +5,90 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Super Bowl Squares</title>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f4; }
-        .grid-container { display: flex; justify-content: center; align-items: flex-start; margin: 20px auto; }
-        .grid { display: grid; grid-template-columns: repeat(11, 50px); grid-template-rows: repeat(11, 50px); gap: 2px; }
-        .grid div { display: flex; justify-content: center; align-items: center; border: 1px solid #ccc; font-size: 14px; font-weight: bold; background-color: white; cursor: pointer; }
-        .grid div.taken { background-color: lightgray; cursor: not-allowed; }
-        .grid div.header { background-color: #333; color: white; cursor: default; }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            color: #333;
+            margin: 20px;
+        }
+        .grid-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            margin: 20px auto;
+        }
+        .team-label {
+            font-weight: bold;
+            font-size: 18px;
+            padding: 10px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(11, 50px);
+            grid-template-rows: repeat(11, 50px);
+            gap: 2px;
+        }
+        .grid div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            font-weight: bold;
+            background-color: white;
+            cursor: pointer;
+        }
+        .grid div.taken {
+            background-color: lightgray;
+            cursor: not-allowed;
+        }
+        .grid div.header {
+            background-color: #333;
+            color: white;
+            cursor: default;
+        }
+        .teams {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0 20px;
+        }
+        .teams img {
+            max-height: 50px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
     <h1>Super Bowl Squares</h1>
+    <div class="teams">
+        <div class="team">
+            <img src="https://upload.wikimedia.org/wikipedia/en/e/e1/Kansas_City_Chiefs_logo.svg" alt="Kansas City Chiefs">
+            <div>Kansas City Chiefs</div>
+        </div>
+        <div>vs</div>
+        <div class="team">
+            <img src="https://upload.wikimedia.org/wikipedia/en/8/8e/Philadelphia_Eagles_logo.svg" alt="Philadelphia Eagles Logo">
+            <div>Philadelphia Eagles</div>
+        </div>
+    </div>
     <div class="grid-container">
         <div class="team-label">Eagles</div>
         <div>
-            <div class="team-label" style="writing-mode: horizontal-tb;">Chiefs</div>
+            <div class="team-label" style="text-align: center;">Chiefs</div>
             <div id="grid" class="grid"></div>
         </div>
     </div>
@@ -31,16 +101,19 @@
             fetch('/')
                 .then(response => response.text())
                 .then(data => {
-                    squares = JSON.parse(data.match(/{.*}/)[0]);
+                    squares = JSON.parse(data.match(/{.*}/)[0]); 
                     createGrid();
                 });
         }
 
         function createGrid() {
             grid.innerHTML = "";
+            
+            // Create column headers
             grid.appendChild(createHeaderCell(''));
             for (let i = 0; i < 10; i++) grid.appendChild(createHeaderCell(i));
 
+            // Create main grid
             for (let i = 0; i < 10; i++) {
                 grid.appendChild(createHeaderCell(i));
                 for (let j = 0; j < 10; j++) {
